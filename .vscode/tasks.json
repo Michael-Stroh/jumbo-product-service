@@ -1,0 +1,63 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "dotnet: restore",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "restore",
+                "Jumbo.ProductService.sln",
+                "--configfile",
+                "NuGet.Config",
+                "--source",
+                "https://api.nuget.org/v3/index.json"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "dotnet: build",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "Jumbo.ProductService.sln",
+                "--no-restore"
+            ],
+            "dependsOn": "dotnet: restore",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "dotnet: test",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "test",
+                "Jumbo.ProductService.sln",
+                "--no-build",
+                "--settings",
+                "coverage.runsettings",
+                "--collect:XPlat Code Coverage"
+            ],
+            "dependsOn": "dotnet: build",
+            "group": "test",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "dotnet: format verify",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "format",
+                "Jumbo.ProductService.sln",
+                "--verify-no-changes"
+            ],
+            "dependsOn": "dotnet: restore",
+            "problemMatcher": []
+        }
+    ]
+}
