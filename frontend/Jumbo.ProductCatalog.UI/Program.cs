@@ -1,5 +1,6 @@
 using Jumbo.ProductCatalog.UI.Components;
 using Jumbo.ProductCatalog.UI.Configs;
+using Jumbo.ProductCatalog.UI.ViewModels;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,11 @@ var api = builder.Configuration.GetSection(ApiOptions.SectionName).Get<ApiOption
     ?? throw new InvalidOperationException("Api options are not configured.");
 builder.Services.AddHttpClient("ProductApi", c =>
     c.BaseAddress = new Uri(api.BaseUrl));
+
+builder.Services.AddScoped<ProductListViewModel>();
+builder.Services.AddScoped<ProductFormViewModel>();
+builder.Services.AddScoped<ProductDetailViewModel>();
+builder.Services.AddScoped<ImportViewModel>();
 
 /*
     ==========================================

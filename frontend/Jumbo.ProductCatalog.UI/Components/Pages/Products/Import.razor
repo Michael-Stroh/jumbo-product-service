@@ -1,6 +1,6 @@
 @page "/products/import"
 @rendermode InteractiveServer
-@inject IHttpClientFactory HttpClientFactory
+@inject ImportViewModel Vm
 
 <PageTitle>Import Products</PageTitle>
 <h1>Import Products</h1>
@@ -14,56 +14,40 @@
 </details>
 
 <div class="mb-3">
-    <textarea class="form-control font-monospace" rows="14" @bind="_json" placeholder="Paste JSON array here…"></textarea>
+    <textarea class="form-control font-monospace" rows="14" @bind="Vm.Json" placeholder="Paste JSON array here…"></textarea>
 </div>
 
-@if (_error is not null)
+@if (Vm.Error is not null)
 {
-    <div class="alert alert-danger">@_error</div>
+    <div class="alert alert-danger">@Vm.Error</div>
 }
 
-@if (_result is not null)
+@if (Vm.Result is not null)
 {
     <div class="alert alert-success">
-        <strong>Imported @_result.Processed product(s).</strong>
-        @if (_result.SkippedCodes.Count > 0)
+        <strong>Imported @Vm.Result.Processed product(s).</strong>
+        @if (Vm.Result.SkippedCodes.Count > 0)
         {
-            <div>Skipped (duplicate/invalid): @string.Join(", ", _result.SkippedCodes)</div>
+            <div>Skipped (duplicate/invalid): @string.Join(", ", Vm.Result.SkippedCodes)</div>
         }
     </div>
 }
 
-<button class="btn btn-primary" @onclick="ImportAsync" disabled="@string.IsNullOrWhiteSpace(_json)">Import</button>
+<button class="btn btn-primary" @onclick="() => Vm.ImportAsync()"
+        disabled="@(string.IsNullOrWhiteSpace(Vm.Json) || Vm.IsSubmitting)">
+    @if (Vm.IsSubmitting)
+    {
+        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+    }
+    Import
+</button>
 <a class="btn btn-outline-secondary ms-2" href="products">Back</a>
 
 @code {
-    string? _json;
-    ImportResult? _result;
-    string? _error;
-
     const string _example = """
         [
           { "Code": "F1001", "Name": "Organic Bananas", "Category": 0, "Content": "Fresh organic bananas.", "IsActive": true },
           { "Code": "NF2001", "Name": "Detergent 1L",   "Category": 1, "Content": null,                    "IsActive": true }
         ]
         """;
-
-    async Task ImportAsync()
-    {
-        _result = null;
-        _error = null;
-
-        // Validate the input is parseable JSON before forwarding to avoid a confusing 400 from the API.
-        try { System.Text.Json.JsonDocument.Parse(_json!); }
-        catch (System.Text.Json.JsonException ex) { _error = $"Invalid JSON: {ex.Message}"; return; }
-
-        var client = HttpClientFactory.CreateClient("ProductApi");
-        var content = new System.Net.Http.StringContent(_json!, System.Text.Encoding.UTF8, "application/json");
-        var response = await client.PostAsync("api/products/import", content);
-
-        if (response.IsSuccessStatusCode)
-            _result = await response.Content.ReadFromJsonAsync<ImportResult>();
-        else
-            _error = await response.Content.ReadAsStringAsync();
-    }
 }

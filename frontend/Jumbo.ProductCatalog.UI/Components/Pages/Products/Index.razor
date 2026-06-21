@@ -1,7 +1,7 @@
 @page "/products"
 @rendermode InteractiveServer
-@inject IHttpClientFactory HttpClientFactory
-@inject NavigationManager Nav
+@inject ProductListViewModel Vm
+@inject IJSRuntime JS
 
 <PageTitle>Products</PageTitle>
 <h1>Products</h1>
@@ -11,20 +11,22 @@
     <a class="btn btn-secondary" href="products/import">Import</a>
 </div>
 
-@if (_error is not null)
+@if (Vm.Error is not null)
 {
-    <div class="alert alert-danger">@_error</div>
+    <div class="alert alert-danger">@Vm.Error</div>
 }
 
-@if (_products is null)
+@if (Vm.Products is null && Vm.Error is null)
 {
-    <p>Loading…</p>
+    <div class="spinner-border text-warning" role="status">
+        <span class="visually-hidden">Loading…</span>
+    </div>
 }
-else if (_products.Count == 0)
+else if (Vm.Products is { Count: 0 })
 {
     <p class="text-muted">No products found.</p>
 }
-else
+else if (Vm.Products is not null)
 {
     <table class="table table-striped table-hover align-middle">
         <thead>
@@ -37,7 +39,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var p in _products)
+            @foreach (var p in Vm.Products)
             {
                 <tr>
                     <td>@p.Code</td>
@@ -56,23 +58,11 @@ else
 }
 
 @code {
-    List<ProductDto>? _products;
-    string? _error;
-
-    protected override async Task OnInitializedAsync()
-    {
-        var client = HttpClientFactory.CreateClient("ProductApi");
-        _products = await client.GetFromJsonAsync<List<ProductDto>>("api/products");
-    }
+    protected override async Task OnInitializedAsync() => await Vm.LoadAsync();
 
     async Task DeleteAsync(Guid id)
     {
-        _error = null;
-        var client = HttpClientFactory.CreateClient("ProductApi");
-        var response = await client.DeleteAsync($"api/products/{id}");
-        if (response.IsSuccessStatusCode)
-            _products = _products?.Where(p => p.Id != id).ToList();
-        else
-            _error = "Delete failed.";
+        if (!await JS.InvokeAsync<bool>("confirm", "Delete this product?")) return;
+        await Vm.DeleteAsync(id);
     }
 }

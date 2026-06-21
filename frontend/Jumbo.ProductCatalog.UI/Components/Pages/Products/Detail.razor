@@ -1,41 +1,44 @@
 @page "/products/{Id:guid}"
 @rendermode InteractiveServer
-@inject IHttpClientFactory HttpClientFactory
+@inject ProductDetailViewModel Vm
 
-<PageTitle>@(_product?.Name ?? "Product")</PageTitle>
+<PageTitle>@(Vm.Product?.Name ?? "Product")</PageTitle>
 
-@if (_product is null)
+@if (Vm.IsLoading)
 {
-    <p>Loading…</p>
+    <div class="spinner-border text-warning" role="status">
+        <span class="visually-hidden">Loading…</span>
+    </div>
 }
-else
+else if (Vm.Error is not null)
 {
-    <h1>@_product.Name</h1>
+    <h1>Product</h1>
+    <div class="alert alert-danger">@Vm.Error</div>
+    <a class="btn btn-outline-secondary" href="products">Back</a>
+}
+else if (Vm.Product is not null)
+{
+    <h1>@Vm.Product.Name</h1>
     <dl class="row">
         <dt class="col-sm-3">Code</dt>
-        <dd class="col-sm-9">@_product.Code</dd>
+        <dd class="col-sm-9">@Vm.Product.Code</dd>
         <dt class="col-sm-3">Category</dt>
-        <dd class="col-sm-9">@((Category)_product.Category)</dd>
+        <dd class="col-sm-9">@((Category)Vm.Product.Category)</dd>
         <dt class="col-sm-3">Content</dt>
-        <dd class="col-sm-9">@(_product.Content ?? "—")</dd>
+        <dd class="col-sm-9">@(Vm.Product.Content ?? "—")</dd>
         <dt class="col-sm-3">Active</dt>
-        <dd class="col-sm-9">@(_product.IsActive ? "Yes" : "No")</dd>
+        <dd class="col-sm-9">@(Vm.Product.IsActive ? "Yes" : "No")</dd>
         <dt class="col-sm-3">Created</dt>
-        <dd class="col-sm-9">@_product.CreatedAt.ToString("g")</dd>
+        <dd class="col-sm-9">@Vm.Product.CreatedAt.ToString("g")</dd>
         <dt class="col-sm-3">Updated</dt>
-        <dd class="col-sm-9">@_product.UpdatedAt.ToString("g")</dd>
+        <dd class="col-sm-9">@Vm.Product.UpdatedAt.ToString("g")</dd>
     </dl>
-    <a class="btn btn-primary" href="products/@_product.Id/edit">Edit</a>
+    <a class="btn btn-primary" href="products/@Vm.Product.Id/edit">Edit</a>
     <a class="btn btn-outline-secondary ms-2" href="products">Back</a>
 }
 
 @code {
     [Parameter] public Guid Id { get; set; }
-    ProductDto? _product;
 
-    protected override async Task OnInitializedAsync()
-    {
-        var client = HttpClientFactory.CreateClient("ProductApi");
-        _product = await client.GetFromJsonAsync<ProductDto>($"api/products/{Id}");
-    }
+    protected override async Task OnInitializedAsync() => await Vm.LoadAsync(Id);
 }

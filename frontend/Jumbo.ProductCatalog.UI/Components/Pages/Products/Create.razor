@@ -1,6 +1,6 @@
 @page "/products/create"
 @rendermode InteractiveServer
-@inject IHttpClientFactory HttpClientFactory
+@inject ProductFormViewModel Vm
 @inject NavigationManager Nav
 
 <PageTitle>New Product</PageTitle>
@@ -8,21 +8,22 @@
 
 <div class="row">
     <div class="col-md-6">
-        <EditForm Model="_form" OnValidSubmit="SubmitAsync">
+        <EditForm Model="Vm.Form" OnValidSubmit="SubmitAsync">
             <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" />
 
             <div class="mb-3">
                 <label class="form-label">Code</label>
-                <InputText class="form-control" @bind-Value="_form.Code" maxlength="50" />
+                <InputText class="form-control" @bind-Value="Vm.Form.Code" maxlength="50" />
+                <ValidationMessage For="() => Vm.Form.Code" />
             </div>
             <div class="mb-3">
                 <label class="form-label">Name</label>
-                <InputText class="form-control" @bind-Value="_form.Name" maxlength="50" />
+                <InputText class="form-control" @bind-Value="Vm.Form.Name" maxlength="50" />
+                <ValidationMessage For="() => Vm.Form.Name" />
             </div>
             <div class="mb-3">
                 <label class="form-label">Category</label>
-                <InputSelect class="form-select" @bind-Value="_form.Category">
+                <InputSelect class="form-select" @bind-Value="Vm.Form.Category">
                     @foreach (var c in Enum.GetValues<Category>())
                     {
                         <option value="@((int)c)">@c</option>
@@ -31,52 +32,36 @@
             </div>
             <div class="mb-3">
                 <label class="form-label">Content</label>
-                <InputTextArea class="form-control" @bind-Value="_form.Content" rows="3" />
+                <InputTextArea class="form-control" @bind-Value="Vm.Form.Content" rows="3" />
             </div>
             <div class="mb-3 form-check">
-                <InputCheckbox class="form-check-input" @bind-Value="_form.IsActive" id="isActive" />
+                <InputCheckbox class="form-check-input" @bind-Value="Vm.Form.IsActive" id="isActive" />
                 <label class="form-check-label" for="isActive">Active</label>
             </div>
 
-            @if (_error is not null)
+            @if (Vm.Error is not null)
             {
-                <div class="alert alert-danger">@_error</div>
+                <div class="alert alert-danger">@Vm.Error</div>
             }
 
-            <button type="submit" class="btn btn-primary">Create</button>
+            <button type="submit" class="btn btn-primary" disabled="@Vm.IsSubmitting">
+                @if (Vm.IsSubmitting)
+                {
+                    <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                }
+                Create
+            </button>
             <a class="btn btn-outline-secondary ms-2" href="products">Cancel</a>
         </EditForm>
     </div>
 </div>
 
 @code {
-    readonly FormModel _form = new();
-    string? _error;
+    protected override void OnInitialized() => Vm.ResetForm();
 
     async Task SubmitAsync()
     {
-        _error = null;
-        var client = HttpClientFactory.CreateClient("ProductApi");
-        var response = await client.PostAsJsonAsync("api/products", new
-        {
-            _form.Code,
-            _form.Name,
-            _form.Category,
-            _form.Content,
-            _form.IsActive,
-        });
-        if (response.IsSuccessStatusCode)
+        if (await Vm.SubmitCreateAsync())
             Nav.NavigateTo("products");
-        else
-            _error = await response.Content.ReadAsStringAsync();
-    }
-
-    sealed class FormModel
-    {
-        [Required][MaxLength(50)] public string Code { get; set; } = "";
-        [Required][MaxLength(50)] public string Name { get; set; } = "";
-        public int Category { get; set; } = 0;
-        public string? Content { get; set; }
-        public bool IsActive { get; set; } = true;
     }
 }
