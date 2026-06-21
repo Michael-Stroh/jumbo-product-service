@@ -4,7 +4,7 @@ namespace Jumbo.ProductService.Core.Interfaces;
 
 public interface IProductRepository
 {
-    Task<Product?> GetByIdAsync(int id, CancellationToken ct = default);
+    Task<Product?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<Product?> GetByCodeAsync(string code, CancellationToken ct = default);
     Task<Product?> GetByCodeIncludingArchivedAsync(string code, CancellationToken ct = default);
     Task<IReadOnlyList<Product>> GetAllAsync(CancellationToken ct = default);

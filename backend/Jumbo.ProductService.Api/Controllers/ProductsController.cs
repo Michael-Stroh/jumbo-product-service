@@ -9,18 +9,18 @@ namespace Jumbo.ProductService.Api.Controllers;
 public sealed class ProductsController(IProductService productService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken ct) =>
+    public async Task<IActionResult> GetAllAsync(CancellationToken ct) =>
         Ok(await productService.GetAllAsync(ct));
 
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetById(int id, CancellationToken ct)
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken ct)
     {
         var product = await productService.GetByIdAsync(id, ct);
         return product is null ? NotFound() : Ok(product);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateProductRequest request, CancellationToken ct)
+    public async Task<IActionResult> CreateAsync([FromBody] CreateProductRequest request, CancellationToken ct)
     {
         var result = await productService.CreateAsync(request, ct);
         if (!result.IsSuccess)
@@ -28,11 +28,11 @@ public sealed class ProductsController(IProductService productService) : Control
             return Problem(title: "Validation error", detail: result.Error, statusCode: StatusCodes.Status400BadRequest);
         }
 
-        return CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, result.Value);
+        return CreatedAtAction(nameof(GetByIdAsync), new { id = result.Value.Id }, result.Value);
     }
 
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateProductRequest request, CancellationToken ct)
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] UpdateProductRequest request, CancellationToken ct)
     {
         var result = await productService.UpdateAsync(id, request, ct);
         if (!result.IsSuccess)
@@ -43,8 +43,8 @@ public sealed class ProductsController(IProductService productService) : Control
         return Ok(result.Value);
     }
 
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id, CancellationToken ct)
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteAsync(Guid id, CancellationToken ct)
     {
         var result = await productService.DeleteAsync(id, ct);
         if (!result.IsSuccess)

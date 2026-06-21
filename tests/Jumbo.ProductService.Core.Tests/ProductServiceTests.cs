@@ -44,7 +44,7 @@ public sealed class ProductServiceTests
     [Fact]
     public async Task CreateAsync_WhenCodeMatchesArchivedProduct_ReactivatesAndReturnsDto()
     {
-        var archived = new Product { Id = 7, Code = "ARC1", Name = "Old", Category = Category.Food, IsActive = false, IsArchived = true };
+        var archived = new Product { Id = Guid.NewGuid(), Code = "ARC1", Name = "Old", Category = Category.Food, IsActive = false, IsArchived = true };
         _repository.GetByCodeIncludingArchivedAsync("ARC1", Arg.Any<CancellationToken>()).Returns(archived);
 
         var result = await _sut.CreateAsync(new CreateProductRequest("ARC1", "Reborn", Category.NonFood, null));
@@ -60,21 +60,23 @@ public sealed class ProductServiceTests
     [Fact]
     public async Task UpdateAsync_WhenProductNotFound_ReturnsFailure()
     {
-        _repository.GetByIdAsync(99, Arg.Any<CancellationToken>()).Returns((Product?)null);
+        var missingId = Guid.NewGuid();
+        _repository.GetByIdAsync(missingId, Arg.Any<CancellationToken>()).Returns((Product?)null);
 
-        var result = await _sut.UpdateAsync(99, new UpdateProductRequest("Name", Category.Food, null, true));
+        var result = await _sut.UpdateAsync(missingId, new UpdateProductRequest("Name", Category.Food, null, true));
 
         result.IsSuccess.Should().BeFalse();
-        result.Error.Should().Contain("99");
+        result.Error.Should().Contain(missingId.ToString());
     }
 
     [Fact]
     public async Task UpdateAsync_WhenProductFound_MutatesEntityAndReturnsDto()
     {
-        var product = new Product { Code = "P1", Name = "Old Name", Category = Category.Food, IsActive = true };
-        _repository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(product);
+        var productId = Guid.NewGuid();
+        var product = new Product { Id = productId, Code = "P1", Name = "Old Name", Category = Category.Food, IsActive = true };
+        _repository.GetByIdAsync(productId, Arg.Any<CancellationToken>()).Returns(product);
 
-        var result = await _sut.UpdateAsync(1, new UpdateProductRequest("New Name", Category.NonFood, "content", false));
+        var result = await _sut.UpdateAsync(productId, new UpdateProductRequest("New Name", Category.NonFood, "content", false));
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Name.Should().Be("New Name");
@@ -85,9 +87,10 @@ public sealed class ProductServiceTests
     [Fact]
     public async Task DeleteAsync_WhenProductNotFound_ReturnsFailure()
     {
-        _repository.GetByIdAsync(99, Arg.Any<CancellationToken>()).Returns((Product?)null);
+        var missingId = Guid.NewGuid();
+        _repository.GetByIdAsync(missingId, Arg.Any<CancellationToken>()).Returns((Product?)null);
 
-        var result = await _sut.DeleteAsync(99);
+        var result = await _sut.DeleteAsync(missingId);
 
         result.IsSuccess.Should().BeFalse();
     }
@@ -95,10 +98,11 @@ public sealed class ProductServiceTests
     [Fact]
     public async Task DeleteAsync_WhenProductFound_CallsRepositoryDeleteAndSucceeds()
     {
-        var product = new Product { Code = "P1", Name = "Name", Category = Category.Food, IsActive = true };
-        _repository.GetByIdAsync(1, Arg.Any<CancellationToken>()).Returns(product);
+        var productId = Guid.NewGuid();
+        var product = new Product { Id = productId, Code = "P1", Name = "Name", Category = Category.Food, IsActive = true };
+        _repository.GetByIdAsync(productId, Arg.Any<CancellationToken>()).Returns(product);
 
-        var result = await _sut.DeleteAsync(1);
+        var result = await _sut.DeleteAsync(productId);
 
         result.IsSuccess.Should().BeTrue();
         await _repository.Received(1).DeleteAsync(product, Arg.Any<CancellationToken>());
@@ -107,9 +111,10 @@ public sealed class ProductServiceTests
     [Fact]
     public async Task GetByIdAsync_WhenNotFound_ReturnsNull()
     {
-        _repository.GetByIdAsync(99, Arg.Any<CancellationToken>()).Returns((Product?)null);
+        var missingId = Guid.NewGuid();
+        _repository.GetByIdAsync(missingId, Arg.Any<CancellationToken>()).Returns((Product?)null);
 
-        var result = await _sut.GetByIdAsync(99);
+        var result = await _sut.GetByIdAsync(missingId);
 
         result.Should().BeNull();
     }
@@ -117,13 +122,14 @@ public sealed class ProductServiceTests
     [Fact]
     public async Task GetByIdAsync_WhenFound_ReturnsMappedDto()
     {
-        var product = new Product { Id = 5, Code = "P5", Name = "Name", Category = Category.Food, IsActive = true };
-        _repository.GetByIdAsync(5, Arg.Any<CancellationToken>()).Returns(product);
+        var productId = Guid.NewGuid();
+        var product = new Product { Id = productId, Code = "P5", Name = "Name", Category = Category.Food, IsActive = true };
+        _repository.GetByIdAsync(productId, Arg.Any<CancellationToken>()).Returns(product);
 
-        var result = await _sut.GetByIdAsync(5);
+        var result = await _sut.GetByIdAsync(productId);
 
         result.Should().NotBeNull();
-        result!.Id.Should().Be(5);
+        result!.Id.Should().Be(productId);
         result.Code.Should().Be("P5");
     }
 }

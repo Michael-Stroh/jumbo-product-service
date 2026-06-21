@@ -31,7 +31,12 @@ public sealed class UpdateTimestampsInterceptor : SaveChangesInterceptor
         var now = DateTime.UtcNow;
         foreach (var entry in context.ChangeTracker.Entries<BaseEntity>())
         {
-            if (entry.State == EntityState.Modified)
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedAt = now;
+                entry.Entity.UpdatedAt = now;
+            }
+            else if (entry.State == EntityState.Modified)
             {
                 entry.Entity.UpdatedAt = now;
             }

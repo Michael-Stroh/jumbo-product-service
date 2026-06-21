@@ -7,8 +7,8 @@ public abstract class BaseEntity
 {
     [Key]
     [Column("id")]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    public Guid Id { get; set; } = Guid.NewGuid();
 
     [Column("is_archived")]
     public bool IsArchived { get; set; } = false;

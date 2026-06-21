@@ -15,8 +15,7 @@ namespace Jumbo.ProductService.Infrastructure.Migrations
                 name: "products",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     code = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     category = table.Column<int>(type: "int", nullable: false),
@@ -35,8 +34,7 @@ namespace Jumbo.ProductService.Infrastructure.Migrations
                 name: "IX_products_code",
                 table: "products",
                 column: "code",
-                unique: true,
-                filter: "[is_archived] = 0");
+                unique: true);
         }
 
         /// <inheritdoc />

@@ -7,7 +7,7 @@ namespace Jumbo.ProductService.Infrastructure.Repositories;
 
 public sealed class ProductRepository(ProductDbContext context) : IProductRepository
 {
-    public Task<Product?> GetByIdAsync(int id, CancellationToken ct = default) =>
+    public Task<Product?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
         context.Products.FirstOrDefaultAsync(p => p.Id == id, ct);
 
     public Task<Product?> GetByCodeAsync(string code, CancellationToken ct = default) =>

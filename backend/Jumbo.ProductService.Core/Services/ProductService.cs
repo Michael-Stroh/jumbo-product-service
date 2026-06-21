@@ -8,7 +8,7 @@ namespace Jumbo.ProductService.Core.Services;
 
 public sealed partial class ProductService(IProductRepository repository, ILogger<ProductService> logger) : IProductService
 {
-    public async Task<ProductDto?> GetByIdAsync(int id, CancellationToken ct = default)
+    public async Task<ProductDto?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         var product = await repository.GetByIdAsync(id, ct);
         return product is null ? null : ToDto(product);
@@ -62,7 +62,7 @@ public sealed partial class ProductService(IProductRepository repository, ILogge
         return Result.Success(ToDto(product));
     }
 
-    public async Task<Result<ProductDto>> UpdateAsync(int id, UpdateProductRequest request, CancellationToken ct = default)
+    public async Task<Result<ProductDto>> UpdateAsync(Guid id, UpdateProductRequest request, CancellationToken ct = default)
     {
         var product = await repository.GetByIdAsync(id, ct);
         if (product is null)
@@ -79,7 +79,7 @@ public sealed partial class ProductService(IProductRepository repository, ILogge
         return Result.Success(ToDto(product));
     }
 
-    public async Task<Result> DeleteAsync(int id, CancellationToken ct = default)
+    public async Task<Result> DeleteAsync(Guid id, CancellationToken ct = default)
     {
         var product = await repository.GetByIdAsync(id, ct);
         if (product is null)

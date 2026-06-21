@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Jumbo.ProductService.Infrastructure.Migrations
 {
     [DbContext(typeof(ProductDbContext))]
-    [Migration("20260621172512_InitialSchema")]
+    [Migration("20260621183618_InitialSchema")]
     partial class InitialSchema
     {
         /// <inheritdoc />
@@ -27,12 +27,9 @@ namespace Jumbo.ProductService.Infrastructure.Migrations
 
             modelBuilder.Entity("Jumbo.ProductService.Domain.Entities.Product", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Category")
                         .HasColumnType("int")
@@ -73,8 +70,7 @@ namespace Jumbo.ProductService.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Code")
-                        .IsUnique()
-                        .HasFilter("[is_archived] = 0");
+                        .IsUnique();
 
                     b.ToTable("products");
                 });

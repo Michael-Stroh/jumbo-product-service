@@ -3,7 +3,7 @@ using Jumbo.ProductService.Domain.Enums;
 namespace Jumbo.ProductService.Core.DTOs;
 
 public sealed record ProductDto(
-    int Id,
+    Guid Id,
     string Code,
     string Name,
     Category Category,
