@@ -1,7 +1,9 @@
 using FluentAssertions;
 using Jumbo.ProductCatalog.Api.Controllers;
 using Jumbo.ProductCatalog.Core.DTOs;
-using Jumbo.ProductCatalog.Core.Interfaces;
+using Jumbo.ProductCatalog.Core.Commands;
+using Jumbo.ProductCatalog.Core.Queries;
+using MediatR;
 using Jumbo.ProductCatalog.Domain.Common;
 using Jumbo.ProductCatalog.Domain.Enums;
 using Microsoft.AspNetCore.Http;
@@ -14,13 +16,13 @@ namespace Jumbo.ProductCatalog.Tests.UnitTests.Api.Controllers;
 [Trait("Category", "Unit")]
 public sealed class ProductsControllerTests
 {
-    private readonly IProductCatalogService _service = Substitute.For<IProductCatalogService>();
+    private readonly ISender _sender = Substitute.For<ISender>();
     private readonly IOutputCacheStore _cacheStore = Substitute.For<IOutputCacheStore>();
     private readonly ProductsController _sut;
 
     public ProductsControllerTests()
     {
-        _sut = new ProductsController(_service, _cacheStore)
+        _sut = new ProductsController(_sender, _cacheStore)
         {
             ControllerContext = new ControllerContext
             {
@@ -37,7 +39,7 @@ public sealed class ProductsControllerTests
     public async Task GetAllAsync_ReturnsOkWithList()
     {
         var products = (IReadOnlyList<ProductDto>)[MakeProduct(), MakeProduct()];
-        _service.GetAllAsync(Arg.Any<CancellationToken>()).Returns(products);
+        _sender.Send(Arg.Any<GetAllProductsQuery>(), Arg.Any<CancellationToken>()).Returns(products);
 
         var response = await _sut.GetAllAsync(CancellationToken.None);
 
@@ -49,7 +51,7 @@ public sealed class ProductsControllerTests
     public async Task GetByIdAsync_ExistingId_Returns200WithProduct()
     {
         var product = MakeProduct();
-        _service.GetByIdAsync(product.Id, Arg.Any<CancellationToken>()).Returns(product);
+        _sender.Send(Arg.Any<GetProductByIdQuery>(), Arg.Any<CancellationToken>()).Returns(product);
 
         var response = await _sut.GetByIdAsync(product.Id, CancellationToken.None);
 
@@ -60,7 +62,7 @@ public sealed class ProductsControllerTests
     [Fact]
     public async Task GetByIdAsync_UnknownId_Returns404()
     {
-        _service.GetByIdAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns((ProductDto?)null);
+        _sender.Send(Arg.Any<GetProductByIdQuery>(), Arg.Any<CancellationToken>()).Returns((ProductDto?)null);
 
         var response = await _sut.GetByIdAsync(Guid.NewGuid(), CancellationToken.None);
 
@@ -72,7 +74,7 @@ public sealed class ProductsControllerTests
     {
         var product = MakeProduct();
         var request = new CreateProductRequest("SKU1", "Product 1", Category.Food, null);
-        _service.CreateAsync(request, Arg.Any<CancellationToken>()).Returns(Result.Success(product));
+        _sender.Send(Arg.Any<CreateProductCommand>(), Arg.Any<CancellationToken>()).Returns(Result.Success(product));
 
         var response = await _sut.CreateAsync(request, CancellationToken.None);
 
@@ -85,7 +87,7 @@ public sealed class ProductsControllerTests
     public async Task CreateAsync_Failure_Returns400()
     {
         var request = new CreateProductRequest("SKU1", "Product 1", Category.Food, null);
-        _service.CreateAsync(request, Arg.Any<CancellationToken>()).Returns(Result.Failure<ProductDto>("Duplicate code"));
+        _sender.Send(Arg.Any<CreateProductCommand>(), Arg.Any<CancellationToken>()).Returns(Result.Failure<ProductDto>("Duplicate code"));
 
         var response = await _sut.CreateAsync(request, CancellationToken.None);
 
@@ -98,7 +100,7 @@ public sealed class ProductsControllerTests
     {
         var product = MakeProduct();
         var request = new UpdateProductRequest("Product 1 Updated", Category.Food, null, true);
-        _service.UpdateAsync(product.Id, request, Arg.Any<CancellationToken>()).Returns(Result.Success(product));
+        _sender.Send(Arg.Any<UpdateProductCommand>(), Arg.Any<CancellationToken>()).Returns(Result.Success(product));
 
         var response = await _sut.UpdateAsync(product.Id, request, CancellationToken.None);
 
@@ -111,7 +113,7 @@ public sealed class ProductsControllerTests
     {
         var id = Guid.NewGuid();
         var request = new UpdateProductRequest("Name", Category.Food, null, true);
-        _service.UpdateAsync(id, request, Arg.Any<CancellationToken>()).Returns(Result.Failure<ProductDto>("Not found"));
+        _sender.Send(Arg.Any<UpdateProductCommand>(), Arg.Any<CancellationToken>()).Returns(Result.Failure<ProductDto>("Not found"));
 
         var response = await _sut.UpdateAsync(id, request, CancellationToken.None);
 
@@ -123,7 +125,7 @@ public sealed class ProductsControllerTests
     public async Task DeleteAsync_Success_Returns204()
     {
         var id = Guid.NewGuid();
-        _service.DeleteAsync(id, Arg.Any<CancellationToken>()).Returns(Result.Success());
+        _sender.Send(Arg.Any<DeleteProductCommand>(), Arg.Any<CancellationToken>()).Returns(Result.Success());
 
         var response = await _sut.DeleteAsync(id, CancellationToken.None);
 
@@ -134,7 +136,7 @@ public sealed class ProductsControllerTests
     public async Task DeleteAsync_NotFound_Returns404()
     {
         var id = Guid.NewGuid();
-        _service.DeleteAsync(id, Arg.Any<CancellationToken>()).Returns(Result.Failure("Not found"));
+        _sender.Send(Arg.Any<DeleteProductCommand>(), Arg.Any<CancellationToken>()).Returns(Result.Failure("Not found"));
 
         var response = await _sut.DeleteAsync(id, CancellationToken.None);
 
@@ -146,8 +148,7 @@ public sealed class ProductsControllerTests
     public async Task ImportAsync_ValidBatch_Returns200WithImportResult()
     {
         var expected = new ImportResult(2, []);
-        _service.ImportAsync(Arg.Any<IReadOnlyList<CreateProductRequest>>(), Arg.Any<CancellationToken>())
-            .Returns(expected);
+        _sender.Send(Arg.Any<ImportProductsCommand>(), Arg.Any<CancellationToken>()).Returns(expected);
 
         var items = new List<CreateProductRequest>
         {
@@ -164,7 +165,7 @@ public sealed class ProductsControllerTests
     [Fact]
     public async Task GetAllAsync_EmptyStore_Returns200WithEmptyList()
     {
-        _service.GetAllAsync(Arg.Any<CancellationToken>()).Returns((IReadOnlyList<ProductDto>)[]);
+        _sender.Send(Arg.Any<GetAllProductsQuery>(), Arg.Any<CancellationToken>()).Returns((IReadOnlyList<ProductDto>)[]);
 
         var response = await _sut.GetAllAsync(CancellationToken.None);
 

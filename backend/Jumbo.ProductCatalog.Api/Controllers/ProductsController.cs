@@ -1,28 +1,34 @@
+using Jumbo.ProductCatalog.Core.Commands;
 using Jumbo.ProductCatalog.Core.DTOs;
-using Jumbo.ProductCatalog.Core.Interfaces;
+using Jumbo.ProductCatalog.Core.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 
 namespace Jumbo.ProductCatalog.Api.Controllers;
 
+// I added auth for incase I got to it but didnt
+// [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public sealed class ProductsController(IProductCatalogService productService, IOutputCacheStore cacheStore) : ControllerBase
+public sealed class ProductsController(ISender mediator, IOutputCacheStore cacheStore) : ControllerBase
 {
     private const string ProductListTag = "products-list";
 
     [HttpGet]
     [OutputCache(Duration = 300, Tags = [ProductListTag])]
     [ProducesResponseType<IReadOnlyList<ProductDto>>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAllAsync(CancellationToken ct) =>
-        Ok(await productService.GetAllAsync(ct));
+    public async Task<IActionResult> GetAllAsync(CancellationToken ct)
+    {
+        return Ok(await mediator.Send(new GetAllProductsQuery(), ct));
+    }
 
     [HttpGet("{id:guid}")]
     [ProducesResponseType<ProductDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken ct)
     {
-        var product = await productService.GetByIdAsync(id, ct);
+        var product = await mediator.Send(new GetProductByIdQuery(id), ct);
         return product is null ? NotFound() : Ok(product);
     }
 
@@ -31,7 +37,7 @@ public sealed class ProductsController(IProductCatalogService productService, IO
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateAsync([FromBody] CreateProductRequest request, CancellationToken ct)
     {
-        var result = await productService.CreateAsync(request, ct);
+        var result = await mediator.Send(new CreateProductCommand(request), ct);
         if (!result.IsSuccess)
         {
             return Problem(title: "Validation error", detail: result.Error, statusCode: StatusCodes.Status400BadRequest);
@@ -46,7 +52,7 @@ public sealed class ProductsController(IProductCatalogService productService, IO
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] UpdateProductRequest request, CancellationToken ct)
     {
-        var result = await productService.UpdateAsync(id, request, ct);
+        var result = await mediator.Send(new UpdateProductCommand(id, request), ct);
         if (!result.IsSuccess)
         {
             return Problem(title: "Not found", detail: result.Error, statusCode: StatusCodes.Status404NotFound);
@@ -61,7 +67,7 @@ public sealed class ProductsController(IProductCatalogService productService, IO
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteAsync(Guid id, CancellationToken ct)
     {
-        var result = await productService.DeleteAsync(id, ct);
+        var result = await mediator.Send(new DeleteProductCommand(id), ct);
         if (!result.IsSuccess)
         {
             return Problem(title: "Not found", detail: result.Error, statusCode: StatusCodes.Status404NotFound);
@@ -75,7 +81,7 @@ public sealed class ProductsController(IProductCatalogService productService, IO
     [ProducesResponseType<ImportResult>(StatusCodes.Status200OK)]
     public async Task<IActionResult> ImportAsync([FromBody] List<CreateProductRequest> items, CancellationToken ct)
     {
-        var result = await productService.ImportAsync(items, ct);
+        var result = await mediator.Send(new ImportProductsCommand(items), ct);
         await cacheStore.EvictByTagAsync(ProductListTag, ct);
         return Ok(result);
     }

@@ -13,11 +13,18 @@ Assessment project for Jumbo solution engineer — a product catalogue service w
 │   └── Jumbo.ProductCatalog.Infrastructure/ # Data access and external services
 ├── frontend/
 │   └── Jumbo.ProductCatalog.UI/             # Blazor frontend
-├── tests/
-│   ├── Jumbo.ProductCatalog.Api.Tests/
-│   └── Jumbo.ProductCatalog.Core.Tests/
 └── docs/
     ├── architecture-decisions.md
+    ├── business-rules.md
+    └── deployment-azure.md
+```
+
+Test project lives inside the backend folder:
+
+```text
+├── backend/
+│   └── tests/
+│       └── Jumbo.ProductCatalog.Tests/     # Unit tests (xUnit)
 ```
 
 ## Prerequisites
@@ -114,17 +121,23 @@ dotnet build
 dotnet run --project backend/Jumbo.ProductCatalog.Api
 ```
 
-The API listens on `https://localhost:7170` by default (see `backend/Jumbo.ProductCatalog.Api/Properties/launchSettings.json`).
+The API listens on `https://localhost:7170` (HTTPS) / `http://localhost:5174` (HTTP) by default (see `backend/Jumbo.ProductCatalog.Api/Properties/launchSettings.json`). The browser opens the Scalar API explorer at `http://localhost:5174/scalar/v1`.
 
 ### 3. Run the frontend
 
-The Blazor UI points at the API via the `Api:BaseUrl` setting, which is already set to `https://localhost:7170` in `appsettings.Development.json`.
+The Blazor UI points at the API via the `Api:BaseUrl` setting, which is already set to `http://localhost:5174` in `appsettings.Development.json`.
 
 ```bash
 dotnet run --project frontend/Jumbo.ProductCatalog.UI
 ```
 
 Opens at `http://localhost:5015` (or the HTTPS equivalent — see `frontend/Jumbo.ProductCatalog.UI/Properties/launchSettings.json`).
+
+### 4. Run the tests
+
+```bash
+dotnet test Jumbo.ProductCatalog.sln
+```
 
 ## Notes
 

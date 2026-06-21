@@ -13,7 +13,6 @@ public partial class Worker(
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        // Run once immediately on startup, then on the configured interval.
         while (!stoppingToken.IsCancellationRequested)
         {
             await RunExportAsync(stoppingToken);
