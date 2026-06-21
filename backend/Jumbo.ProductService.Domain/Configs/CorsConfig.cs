@@ -1,6 +1,6 @@
 namespace Jumbo.ProductService.Domain.Configs;
 
-public sealed class CorsOptions
+public sealed class CorsConfig
 {
     public const string SectionName = "Cors";
 

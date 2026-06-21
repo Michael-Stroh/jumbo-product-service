@@ -1,5 +1,5 @@
-using Jumbo.ProductService.Api;
-using Jumbo.ProductService.Api.Configs;
+using Jumbo.ProductService.Api.Extensions;
+using Jumbo.ProductService.Api.Middleware;
 using Jumbo.ProductService.Domain.Configs;
 using Microsoft.AspNetCore.HttpLogging;
 using Scalar.AspNetCore;
@@ -15,7 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddProjectOptions(builder.Configuration);
 
 // IOptions<T> is for injection into services. At registration time, bind a snapshot directly.
-var cors = builder.Configuration.GetSection(CorsOptions.SectionName).Get<CorsOptions>() ?? new CorsOptions();
+var cors = builder.Configuration.GetSection(CorsConfig.SectionName).Get<CorsConfig>() ?? new CorsConfig();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -43,6 +43,10 @@ builder.Services.AddOpenApi(options =>
         return Task.CompletedTask;
     });
 });
+
+// Application and infrastructure
+builder.Services.AddServices();
+builder.Services.AddDatabase(builder.Configuration);
 
 // Health + errors
 builder.Services.AddHealthChecks();

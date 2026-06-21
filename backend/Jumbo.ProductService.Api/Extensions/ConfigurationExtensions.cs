@@ -1,6 +1,6 @@
 using Jumbo.ProductService.Domain.Configs;
 
-namespace Jumbo.ProductService.Api.Configs;
+namespace Jumbo.ProductService.Api.Extensions;
 
 public static class ConfigurationExtensions
 {
@@ -9,7 +9,8 @@ public static class ConfigurationExtensions
     /// </summary>
     public static IServiceCollection AddProjectOptions(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<CorsOptions>(configuration.GetSection(CorsOptions.SectionName));
+        services.Configure<CorsConfig>(configuration.GetSection(CorsConfig.SectionName));
+        services.Configure<DatabaseConfig>(configuration.GetSection(DatabaseConfig.SectionName));
 
         return services;
     }

@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace Jumbo.ProductService.Api;
+namespace Jumbo.ProductService.Api.Middleware;
 
 internal sealed class CorrelationIdMiddleware(RequestDelegate next)
 {
