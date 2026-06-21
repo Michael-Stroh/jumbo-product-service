@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <UserSecretsId>dotnet-Jumbo.ProductCatalog.Api-8f3a7e9c-2b1d-4f6a-9e8c-d7b5a3f1e2c4</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Scalar.AspNetCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Jumbo.ProductCatalog.Core\Jumbo.ProductCatalog.Core.csproj" />
+    <ProjectReference Include="..\Jumbo.ProductCatalog.Infrastructure\Jumbo.ProductCatalog.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

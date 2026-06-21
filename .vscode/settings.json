@@ -1,5 +1,5 @@
 {
-    "dotnet.defaultSolution": "Jumbo.ProductService.sln",
+    "dotnet.defaultSolution": "Jumbo.ProductCatalog.sln",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
         "source.fixAll": "explicit",

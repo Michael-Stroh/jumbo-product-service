@@ -14,6 +14,6 @@ repos:
       - id: dotnet-format
         name: dotnet format
         language: system
-        entry: dotnet format Jumbo.ProductService.sln --verify-no-changes
+        entry: dotnet format Jumbo.ProductCatalog.sln --verify-no-changes
         pass_filenames: false
         types_or: [c#, xml]

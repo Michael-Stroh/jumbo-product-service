@@ -6,16 +6,16 @@ Assessment project for Jumbo solution engineer — a product catalogue service w
 
 ```text
 ├── backend/
-│   ├── Jumbo.ProductService.Api/            # ASP.NET Core Web API
-│   ├── Jumbo.ProductService.Worker/         # Background service host
-│   ├── Jumbo.ProductService.Core/           # Use cases and service interfaces
-│   ├── Jumbo.ProductService.Domain/         # Core entities and business rules
-│   └── Jumbo.ProductService.Infrastructure/ # Data access and external services
+│   ├── Jumbo.ProductCatalog.Api/            # ASP.NET Core Web API
+│   ├── Jumbo.ProductCatalog.Worker/         # Background service host
+│   ├── Jumbo.ProductCatalog.Core/           # Use cases and service interfaces
+│   ├── Jumbo.ProductCatalog.Domain/         # Core entities and business rules
+│   └── Jumbo.ProductCatalog.Infrastructure/ # Data access and external services
 ├── frontend/
-│   └── Jumbo.ProductService.UI/             # Blazor frontend
+│   └── Jumbo.ProductCatalog.UI/             # Blazor frontend
 ├── tests/
-│   ├── Jumbo.ProductService.Api.Tests/
-│   └── Jumbo.ProductService.Core.Tests/
+│   ├── Jumbo.ProductCatalog.Api.Tests/
+│   └── Jumbo.ProductCatalog.Core.Tests/
 └── docs/
     ├── architecture-decisions.md
 ```
@@ -40,22 +40,22 @@ The `.env` file only configures Docker containers. The .NET apps read secrets vi
 
 ```bash
 dotnet user-secrets set "Database:ConnectionString" \
-  "Server=localhost,1433;Database=JumboProductService;User Id=sa;Password=<your-password>;TrustServerCertificate=True" \
-  --project backend/Jumbo.ProductService.Api
+  "Server=localhost,1433;Database=JumboProductCatalog;User Id=sa;Password=<your-password>;TrustServerCertificate=True" \
+  --project backend/Jumbo.ProductCatalog.Api
 
 dotnet user-secrets set "BlobStorage:ConnectionString" \
   "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tiqIFOGWWhbhwznHXVjmQT==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;" \
-  --project backend/Jumbo.ProductService.Api
+  --project backend/Jumbo.ProductCatalog.Api
 ```
 
-Repeat for `Jumbo.ProductService.Worker` if needed. See `docs/secrets-guide.md` for the full secrets strategy.
+Repeat for `Jumbo.ProductCatalog.Worker` if needed. See `docs/secrets-guide.md` for the full secrets strategy.
 
 ### 3. Run
 
 ```bash
 dotnet restore
 dotnet build
-dotnet run --project backend/Jumbo.ProductService.Api
+dotnet run --project backend/Jumbo.ProductCatalog.Api
 ```
 
 ## Notes

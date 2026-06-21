@@ -7,7 +7,7 @@
             "command": "dotnet",
             "args": [
                 "restore",
-                "Jumbo.ProductService.sln",
+                "Jumbo.ProductCatalog.sln",
                 "--configfile",
                 "NuGet.Config",
                 "--source",
@@ -21,7 +21,7 @@
             "command": "dotnet",
             "args": [
                 "build",
-                "Jumbo.ProductService.sln",
+                "Jumbo.ProductCatalog.sln",
                 "--no-restore"
             ],
             "dependsOn": "dotnet: restore",
@@ -37,7 +37,7 @@
             "command": "dotnet",
             "args": [
                 "test",
-                "Jumbo.ProductService.sln",
+                "Jumbo.ProductCatalog.sln",
                 "--no-build",
                 "--settings",
                 "coverage.runsettings",
@@ -53,7 +53,7 @@
             "command": "dotnet",
             "args": [
                 "format",
-                "Jumbo.ProductService.sln",
+                "Jumbo.ProductCatalog.sln",
                 "--verify-no-changes"
             ],
             "dependsOn": "dotnet: restore",

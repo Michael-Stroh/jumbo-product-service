@@ -1,0 +1,6 @@
+@Jumbo.ProductCatalog.Api_HostAddress = http://localhost:5174
+
+GET {{Jumbo.ProductCatalog.Api_HostAddress}}/healthz
+Accept: application/json
+
+###

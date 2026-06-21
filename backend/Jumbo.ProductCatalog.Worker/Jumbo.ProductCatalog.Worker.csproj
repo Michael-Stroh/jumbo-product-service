@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <UserSecretsId>dotnet-Jumbo.ProductCatalog.Worker-04a27add-fbc8-4914-86df-71c22b2cc7df</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Jumbo.ProductCatalog.Core\Jumbo.ProductCatalog.Core.csproj" />
+    <ProjectReference Include="..\Jumbo.ProductCatalog.Infrastructure\Jumbo.ProductCatalog.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

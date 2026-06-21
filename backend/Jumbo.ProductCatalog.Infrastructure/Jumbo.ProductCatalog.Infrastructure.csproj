@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <!-- Override transitive System.Security.Cryptography.Xml (GHSA-37gx-xxp4-5rgx, GHSA-w3x6-4m5h-cxqf) to patched 10.0.6 -->
+    <PackageReference Include="System.Security.Cryptography.Xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Jumbo.ProductCatalog.Core\Jumbo.ProductCatalog.Core.csproj" />
+    <ProjectReference Include="..\Jumbo.ProductCatalog.Domain\Jumbo.ProductCatalog.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
