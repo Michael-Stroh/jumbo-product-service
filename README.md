@@ -8,14 +8,14 @@ Assessment project for Jumbo solution engineer — a product catalogue service w
 ├── backend/
 │   ├── Jumbo.ProductService.Api/            # ASP.NET Core Web API
 │   ├── Jumbo.ProductService.Worker/         # Background service host
-│   ├── Jumbo.ProductService.Application/    # Use cases and service interfaces
+│   ├── Jumbo.ProductService.Core/           # Use cases and service interfaces
 │   ├── Jumbo.ProductService.Domain/         # Core entities and business rules
 │   └── Jumbo.ProductService.Infrastructure/ # Data access and external services
 ├── frontend/
 │   └── Jumbo.ProductService.UI/             # Blazor frontend
 ├── tests/
 │   ├── Jumbo.ProductService.Api.Tests/
-│   └── Jumbo.ProductService.Application.Tests/
+│   └── Jumbo.ProductService.Core.Tests/
 └── docs/
     ├── architecture-decisions.md
 ```

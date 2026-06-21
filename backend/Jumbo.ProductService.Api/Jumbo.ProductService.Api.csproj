@@ -6,11 +6,15 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Scalar.AspNetCore" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Jumbo.ProductService.Application\Jumbo.ProductService.Application.csproj" />
+    <ProjectReference Include="..\Jumbo.ProductService.Core\Jumbo.ProductService.Core.csproj" />
     <ProjectReference Include="..\Jumbo.ProductService.Infrastructure\Jumbo.ProductService.Infrastructure.csproj" />
   </ItemGroup>
 

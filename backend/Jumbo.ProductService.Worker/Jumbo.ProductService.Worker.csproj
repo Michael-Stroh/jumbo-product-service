@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Jumbo.ProductService.Application\Jumbo.ProductService.Application.csproj" />
+    <ProjectReference Include="..\Jumbo.ProductService.Core\Jumbo.ProductService.Core.csproj" />
     <ProjectReference Include="..\Jumbo.ProductService.Infrastructure\Jumbo.ProductService.Infrastructure.csproj" />
   </ItemGroup>
 </Project>
