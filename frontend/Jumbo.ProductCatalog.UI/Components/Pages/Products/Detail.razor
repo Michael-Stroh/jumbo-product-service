@@ -25,7 +25,7 @@ else if (Vm.Product is not null)
         <dt class="col-sm-3">Category</dt>
         <dd class="col-sm-9">@((Category)Vm.Product.Category)</dd>
         <dt class="col-sm-3">Content</dt>
-        <dd class="col-sm-9">@(Vm.Product.Content ?? "—")</dd>
+        <dd class="col-sm-9">@(Vm.Product.Content ?? "-")</dd>
         <dt class="col-sm-3">Active</dt>
         <dd class="col-sm-9">@(Vm.Product.IsActive ? "Yes" : "No")</dd>
         <dt class="col-sm-3">Created</dt>

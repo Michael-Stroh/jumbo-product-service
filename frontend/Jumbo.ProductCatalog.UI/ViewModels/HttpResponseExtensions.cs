@@ -3,7 +3,6 @@ using Jumbo.ProductCatalog.UI.Models;
 
 namespace Jumbo.ProductCatalog.UI.ViewModels;
 
-// ponytail: shared parsing for 4 VMs — ceiling: no retry/backoff; upgrade to typed client if VMs grow
 internal static class HttpResponseExtensions
 {
     internal static async Task<string> ReadApiErrorAsync(this HttpResponseMessage response)

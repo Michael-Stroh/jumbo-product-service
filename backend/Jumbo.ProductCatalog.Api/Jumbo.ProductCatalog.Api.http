@@ -46,7 +46,7 @@ Content-Type: application/json
 
 ###
 
-### Delete product (soft delete — sets IsArchived = true)
+### Delete product (soft delete - sets IsArchived = true)
 DELETE {{Jumbo.ProductCatalog.Api_HostAddress}}/api/products/{{ProductId}}
 Accept: application/json
 

@@ -3,20 +3,20 @@ using Jumbo.ProductCatalog.Core.DTOs;
 using Jumbo.ProductCatalog.Core.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
 
 namespace Jumbo.ProductCatalog.Api.Controllers;
 
-// I added auth for incase I got to it but didnt
+// I added for incase I got to it but didnt have the time
 // [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public sealed class ProductsController(ISender mediator, IOutputCacheStore cacheStore) : ControllerBase
+//public sealed class ProductsController(ISender mediator, IOutputCacheStore cacheStore) : ControllerBase
+public sealed class ProductsController(ISender mediator) : ControllerBase
 {
-    private const string ProductListTag = "products-list";
+    //private const string ProductListTag = "products-list";
 
     [HttpGet]
-    [OutputCache(Duration = 300, Tags = [ProductListTag])]
+    //[OutputCache(Duration = 300, Tags = [ProductListTag])]
     [ProducesResponseType<IReadOnlyList<ProductDto>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync(CancellationToken ct)
     {
@@ -43,7 +43,13 @@ public sealed class ProductsController(ISender mediator, IOutputCacheStore cache
             return Problem(title: "Validation error", detail: result.Error, statusCode: StatusCodes.Status400BadRequest);
         }
 
-        await cacheStore.EvictByTagAsync(ProductListTag, ct);
+        /*
+            This will spike the db load by evicting the cache so often
+            hence I commented it out for now.
+
+            await cacheStore.EvictByTagAsync(ProductListTag, ct);
+        */
+
         return Created($"{Request.Path}/{result.Value.Id}", result.Value);
     }
 
@@ -58,7 +64,8 @@ public sealed class ProductsController(ISender mediator, IOutputCacheStore cache
             return Problem(title: "Not found", detail: result.Error, statusCode: StatusCodes.Status404NotFound);
         }
 
-        await cacheStore.EvictByTagAsync(ProductListTag, ct);
+        // await cacheStore.EvictByTagAsync(ProductListTag, ct);
+
         return Ok(result.Value);
     }
 
@@ -73,7 +80,8 @@ public sealed class ProductsController(ISender mediator, IOutputCacheStore cache
             return Problem(title: "Not found", detail: result.Error, statusCode: StatusCodes.Status404NotFound);
         }
 
-        await cacheStore.EvictByTagAsync(ProductListTag, ct);
+        // await cacheStore.EvictByTagAsync(ProductListTag, ct);
+
         return NoContent();
     }
 
@@ -82,7 +90,9 @@ public sealed class ProductsController(ISender mediator, IOutputCacheStore cache
     public async Task<IActionResult> ImportAsync([FromBody] List<CreateProductRequest> items, CancellationToken ct)
     {
         var result = await mediator.Send(new ImportProductsCommand(items), ct);
-        await cacheStore.EvictByTagAsync(ProductListTag, ct);
+
+        // await cacheStore.EvictByTagAsync(ProductListTag, ct);
+
         return Ok(result);
     }
 }

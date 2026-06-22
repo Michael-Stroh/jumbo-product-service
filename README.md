@@ -1,6 +1,6 @@
 # Jumbo Product Service
 
-Assessment project for Jumbo solution engineer — a product catalogue service with a Blazor frontend, ASP.NET Core API, background worker, and layered backend architecture.
+Assessment project for Jumbo solution engineer - a product catalogue service with a Blazor frontend, ASP.NET Core API, background worker, and layered backend architecture.
 
 ## Project structure
 
@@ -47,7 +47,7 @@ Test project lives inside the backend folder:
 cp .env.example .env
 ```
 
-Open `.env` and set a strong SQL Server SA password (must meet SQL Server complexity rules — min 8 chars, mixed case, digit, symbol):
+Open `.env` and set a strong SQL Server SA password (must meet SQL Server complexity rules - min 8 chars, mixed case, digit, symbol):
 
 ```
 MSSQL_SA_PASSWORD=Your_Strong_Password1!
@@ -86,19 +86,29 @@ dotnet ef database update \
 
 ### 4. Set local app secrets
 
-The `.env` file only configures Docker containers. The .NET apps read connection strings via `dotnet user-secrets`:
+The `.env` file only configures Docker containers. The .NET apps read the database connection string via `dotnet user-secrets`:
 
 ```bash
 dotnet user-secrets set "Database:ConnectionString" \
   "Server=localhost,1433;Database=JumboProductCatalog;User Id=sa;Password=Your_Strong_Password1!;TrustServerCertificate=True" \
   --project backend/Jumbo.ProductCatalog.Api
 
-dotnet user-secrets set "BlobStorage:ConnectionString" \
-  "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tiqIFOGWWhbhwznHXVjmQT==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;" \
-  --project backend/Jumbo.ProductCatalog.Api
+dotnet user-secrets set "Database:ConnectionString" \
+  "Server=localhost,1433;Database=JumboProductCatalog;User Id=sa;Password=Your_Strong_Password1!;TrustServerCertificate=True" \
+  --project backend/Jumbo.ProductCatalog.Worker
 ```
 
-Repeat both secrets for `Jumbo.ProductCatalog.Worker` if running the worker locally.
+The blob storage connection string does **not** need to be set manually for local development — `appsettings.Development.json` already contains `UseDevelopmentStorage=true`, which points to the Azurite container. If connecting to a real Azure Storage account instead, override it with:
+
+```bash
+dotnet user-secrets set "BlobStorage:ConnectionString" \
+  "DefaultEndpointsProtocol=https;AccountName=<account>;AccountKey=<key>;EndpointSuffix=core.windows.net" \
+  --project backend/Jumbo.ProductCatalog.Api
+
+dotnet user-secrets set "BlobStorage:ConnectionString" \
+  "DefaultEndpointsProtocol=https;AccountName=<account>;AccountKey=<key>;EndpointSuffix=core.windows.net" \
+  --project backend/Jumbo.ProductCatalog.Worker
+```
 
 ### Stopping / resetting
 
@@ -131,9 +141,48 @@ The Blazor UI points at the API via the `Api:BaseUrl` setting, which is already 
 dotnet run --project frontend/Jumbo.ProductCatalog.UI
 ```
 
-Opens at `http://localhost:5015` (or the HTTPS equivalent — see `frontend/Jumbo.ProductCatalog.UI/Properties/launchSettings.json`).
+Opens at `http://localhost:5015` (or the HTTPS equivalent - see `frontend/Jumbo.ProductCatalog.UI/Properties/launchSettings.json`).
 
-### 4. Run the tests
+### 4. Run the worker
+
+```bash
+dotnet run --project backend/Jumbo.ProductCatalog.Worker
+```
+
+The worker runs an export immediately on startup, then repeats every 5 minutes (configurable via `Export:IntervalMinutes` in `appsettings.json`). You should see these log lines:
+
+```
+info: Jumbo.ProductCatalog.Worker.Worker  Export cycle started
+info: Jumbo.ProductCatalog.Core.Services.ExportService  Export completed: N products written to active-products-yyyyMMddHHmmss.json
+info: Jumbo.ProductCatalog.Worker.Worker  Export cycle completed: N products exported to active-products-yyyyMMddHHmmss.json
+```
+
+#### Verify blobs in Azurite
+
+Install the Azure CLI if you don't have it: <https://docs.microsoft.com/cli/azure/install-azure-cli>
+
+List exported files in the `product-catalog-exports` container:
+
+```bash
+az storage blob list \
+  --connection-string "UseDevelopmentStorage=true" \
+  --container-name product-catalog-exports \
+  --output table
+```
+
+Each successful export run adds a new `active-products-yyyyMMddHHmmss.json` blob. An empty table means no export has run yet (no active products, or the worker hasn't started).
+
+To download and inspect a specific export (replace the filename with one from the list above):
+
+```bash
+az storage blob download \
+  --connection-string "UseDevelopmentStorage=true" \
+  --container-name product-catalog-exports \
+  --name active-products-yyyyMMddHHmmss.json \
+  --file export.json && cat export.json
+```
+
+### 5. Run the tests
 
 ```bash
 dotnet test Jumbo.ProductCatalog.sln

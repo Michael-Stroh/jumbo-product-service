@@ -14,7 +14,7 @@ public sealed class Result
     public static Result Success() => new(true, null);
     public static Result Failure(string error) => new(false, error);
 
-    // Typed factories — static members on a non-generic class, satisfies CA1000.
+    // Typed factories - static members on a non-generic class, satisfies CA1000.
     public static Result<T> Success<T>(T value) => new(value);
     public static Result<T> Failure<T>(string error) => new(error);
 }

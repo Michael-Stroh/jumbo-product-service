@@ -1,14 +1,13 @@
 using FluentAssertions;
 using Jumbo.ProductCatalog.Api.Controllers;
-using Jumbo.ProductCatalog.Core.DTOs;
 using Jumbo.ProductCatalog.Core.Commands;
+using Jumbo.ProductCatalog.Core.DTOs;
 using Jumbo.ProductCatalog.Core.Queries;
-using MediatR;
 using Jumbo.ProductCatalog.Domain.Common;
 using Jumbo.ProductCatalog.Domain.Enums;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
 using NSubstitute;
 
 namespace Jumbo.ProductCatalog.Tests.UnitTests.Api.Controllers;
@@ -17,12 +16,11 @@ namespace Jumbo.ProductCatalog.Tests.UnitTests.Api.Controllers;
 public sealed class ProductsControllerTests
 {
     private readonly ISender _sender = Substitute.For<ISender>();
-    private readonly IOutputCacheStore _cacheStore = Substitute.For<IOutputCacheStore>();
     private readonly ProductsController _sut;
 
     public ProductsControllerTests()
     {
-        _sut = new ProductsController(_sender, _cacheStore)
+        _sut = new ProductsController(_sender)
         {
             ControllerContext = new ControllerContext
             {
